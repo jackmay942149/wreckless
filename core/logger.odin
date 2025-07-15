@@ -17,8 +17,9 @@ Logger_Topic :: enum {
 
 @(private = "file")
 Logger_Context :: struct {
-	user:  Logger_User,
-	topic: Logger_Topic,
+	user:         Logger_User,
+	topic:        Logger_Topic,
+	log: ^log.Logger,
 }
 
 @(private = "file")
@@ -31,12 +32,13 @@ init_logger :: proc(
 	allocator := context.allocator,
 ) -> log.Logger {
 	context.allocator = allocator
-	logger_ctx = {user, topic}
+	logger_ctx = {user, topic, nil}
 
 	// Create terminal logger
-	info_opt := log.Options{.Level}
+	info_opt := log.Options{.Level, .Terminal_Color}
 	info_log := log.create_console_logger(.Info, info_opt, "", context.allocator)
 	context.logger = info_log
+	logger_ctx.log = &info_log
 
 	// Return early if no file logger
 	if file == "" {
@@ -59,9 +61,12 @@ init_logger :: proc(
 	)
 
 	logger := log.create_multi_logger(debug_log, info_log, allocator = context.allocator)
-	log.info("Created logger")
+	logger_ctx.log = &logger
+	topic_info(.Core, "Created logger")
 	return logger
 }
+
+// TODO: Destroy logger
 
 @(disabled = RELEASE)
 user_debug :: proc(user: Logger_User, args: ..any, location := #caller_location) {
