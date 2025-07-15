@@ -6,7 +6,6 @@ main :: proc() {
 	context.logger = core.init_logger(.Jack, .All, "log.txt")
 	tracking_allocator, allocator := core.init_tracker()
 	context.allocator = allocator
-	core.user_info(.Jack, "Hello", "Hello")
 	defer {
 		defer {
 			core.assert_tracker_empty(tracking_allocator)
@@ -18,12 +17,11 @@ main :: proc() {
 		width = 400,
 		height  = 400,
 		title = "Example Window",
-		graphics_api = .Vulkan,
-		monitor = 6,
+		graphics_api = .OpenGL,
 	}
-	core.init_window(&app_info)
+	glfw_ctx := core.init_window(&app_info)
 
-	for !core.window_should_close() {
+	for !core.window_should_close(&glfw_ctx) {
 				
 	}
 }

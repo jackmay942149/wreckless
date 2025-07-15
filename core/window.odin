@@ -10,25 +10,23 @@ import "vendor:glfw"
 import vk "vendor:vulkan"
 
 GLFW_Context :: struct {
-	window: glfw.WindowHandle,
+	window:       glfw.WindowHandle,
+	graphics_api: Graphics_Api,
 }
 
 App_Info :: struct {
 	width:        i32,
 	height:       i32,
 	title:        cstring,
-	graphics_api: Graphics_Api,
+	graphics_api: Graphics_Api_Type,
 	monitor:      Maybe(u32),
 }
 
-@(private)
-odin_ctx: runtime.Context
-@(private)
-glfw_ctx: GLFW_Context
-
-init_window :: proc(app_info: ^App_Info) -> GLFW_Context {
-	odin_ctx = context
+init_window :: proc(app_info: ^App_Info, allocator:= context.allocator) -> (glfw_ctx: GLFW_Context) {
+	context.allocator = allocator
 	assert(glfw_ctx.window == nil)
+	
+	
 	glfw.Init()
 	glfw.WindowHint(glfw.RESIZABLE, glfw.TRUE)
 	glfw.WindowHint(glfw.MAXIMIZED, glfw.FALSE)
@@ -38,12 +36,25 @@ init_window :: proc(app_info: ^App_Info) -> GLFW_Context {
 	case .Vulkan:
 		glfw.WindowHint(glfw.CLIENT_API, glfw.NO_API)
 	}
-	
-	// Select monitor food display
+
+	glfw_ctx.window = select_monitor(app_info)
+	glfw.MakeContextCurrent(glfw_ctx.window)
+
+	switch app_info.graphics_api {
+	case .OpenGL:	glfw_ctx.graphics_api = init_opengl()
+	case .Vulkan:	return {}
+	}
+
+	topic_info(.Core, "Initialised window")
+	return glfw_ctx
+}
+
+@(private = "file")
+select_monitor :: proc(app_info: ^App_Info) -> (window: glfw.WindowHandle) {
 	monitors := glfw.GetMonitors()
 	monitor_id, selected := app_info.monitor.?
 	if !selected {
-		glfw_ctx.window = glfw.CreateWindow(
+		window = glfw.CreateWindow(
 			app_info.width,
 			app_info.height,
 			app_info.title,
@@ -52,8 +63,8 @@ init_window :: proc(app_info: ^App_Info) -> GLFW_Context {
 		)
 	} else {
 		if app_info.monitor.(u32) > u32(len(monitors)) {
-			topic_error(.Core, "Monitor",  app_info.monitor, "is unavailable")
-			glfw_ctx.window = glfw.CreateWindow(
+			topic_error(.Core, "Monitor", app_info.monitor, "is unavailable")
+			window = glfw.CreateWindow(
 				app_info.width,
 				app_info.height,
 				app_info.title,
@@ -61,7 +72,7 @@ init_window :: proc(app_info: ^App_Info) -> GLFW_Context {
 				nil,
 			)
 		} else {
-			glfw_ctx.window = glfw.CreateWindow(
+			window = glfw.CreateWindow(
 				app_info.width,
 				app_info.height,
 				app_info.title,
@@ -70,52 +81,26 @@ init_window :: proc(app_info: ^App_Info) -> GLFW_Context {
 			)
 		}
 	}
-	glfw.MakeContextCurrent(glfw_ctx.window)
-	// init_vulkan(glfw_ctx.window)
-	topic_info(.Core, "Initialised window")
-	return glfw_ctx
+	return window
 }
 
-window_should_close :: proc() -> bool {
+window_should_close :: proc(glfw_ctx: ^GLFW_Context) -> bool {
+	glfw_ctx.graphics_api.render(&glfw_ctx.graphics_api.ctx)
 	glfw.SwapBuffers(glfw_ctx.window)
 	glfw.PollEvents()
-	//draw_frame()
-	// vk_assert(vk.DeviceWaitIdle(vk_ctx.logical_device), "Failed to wait for synchronisation")
 	return bool(glfw.WindowShouldClose(glfw_ctx.window))
 }
 
-/*
-destroy_window :: proc() { 	// TODO: have a destroy vulkan function
+destroy_window :: proc(glfw_ctx: ^GLFW_Context) { 	
 	assert(glfw_ctx.window != nil)
-	assert(vk_ctx.instance != nil)
-	vk_assert(vk.DeviceWaitIdle(vk_ctx.logical_device), "Failed to wait for synchronisation")
-	delete(vk_ctx.avail_extensions)
-	delete(vk_ctx.avail_validation_layers)
-	cleanup_swapchain(true)
-	vk.DestroyDescriptorSetLayout(vk_ctx.logical_device, vk_ctx.descriptor_set_layout, nil)
-	vk.DestroySemaphore(vk_ctx.logical_device, vk_ctx.image_avail_semaphore, nil)
-	vk.DestroySemaphore(vk_ctx.logical_device, vk_ctx.render_finished_semaphore, nil)
-	vk.DestroyFence(vk_ctx.logical_device, vk_ctx.in_flight_fence, nil)
-	vk.DestroyBuffer(vk_ctx.logical_device, vk_ctx.vertex_buffer, nil)
-	vk.FreeMemory(vk_ctx.logical_device, vk_ctx.vertex_buffer_memory, nil)
-	vk.DestroyBuffer(vk_ctx.logical_device, vk_ctx.index_buffer, nil)
-	vk.FreeMemory(vk_ctx.logical_device, vk_ctx.index_buffer_memory, nil)
-	vk.DestroyCommandPool(vk_ctx.logical_device, vk_ctx.command_pool, nil)
-	vk.DestroyPipeline(vk_ctx.logical_device, vk_ctx.graphics_pipeline, nil)
-	vk.DestroyPipelineLayout(vk_ctx.logical_device, vk_ctx.pipeline_layout, nil)
-	vk.DestroyRenderPass(vk_ctx.logical_device, vk_ctx.render_pass, nil)
-	delete(vk_ctx.swapchain_images)
-	vk.DestroySurfaceKHR(vk_ctx.instance, vk_ctx.surface, nil)
-	vk.DestroyDevice(vk_ctx.logical_device, nil)
-	vk.DestroyDebugUtilsMessengerEXT(vk_ctx.instance, vk_ctx.debug_messenger, nil)
-	vk.DestroyInstance(vk_ctx.instance, nil)
-	vk_ctx.instance = nil
+	glfw_ctx.graphics_api.destroy(&glfw_ctx.graphics_api.ctx)
 	glfw.DestroyWindow(glfw_ctx.window)
 	glfw.Terminate()
 	glfw_ctx.window = nil
 	log.info("Closed window")
 }
 
+/*
 maximise_window :: proc() {
 	glfw.MaximizeWindow(glfw_ctx.window)
 }

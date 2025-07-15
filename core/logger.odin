@@ -14,6 +14,7 @@ Logger_Topic :: enum {
 	All,
 	Temp,
 	Core,
+	Graphics,
 }
 
 @(private = "file")
