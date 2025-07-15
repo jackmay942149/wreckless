@@ -3,6 +3,7 @@ package core
 import "base:runtime"
 import "core:log"
 import "core:os"
+import "core:fmt"
 
 Logger_User :: enum {
 	All,
@@ -73,9 +74,10 @@ user_debug :: proc(user: Logger_User, args: ..any, location := #caller_location)
 	if logger_ctx.user != .All && user != logger_ctx.user && user != .All {
 		return
 	}
-	for a in args {
-		log.debug(user, location, "-", a)
-	}
+	log.debug(user, location)
+	log.debug(..args)
+	fmt.println("")
+	
 }
 
 @(disabled = RELEASE)
@@ -83,9 +85,10 @@ user_info :: proc(user: Logger_User, args: ..any, location := #caller_location) 
 	if logger_ctx.user != .All && user != logger_ctx.user && user != .All {
 		return
 	}
-	for a in args {
-		log.info(user, location, "-", a)
-	}
+	log.info(user, location)
+	log.info(..args)
+	fmt.println("")
+	
 }
 
 @(disabled = RELEASE)
@@ -93,9 +96,10 @@ user_warn :: proc(user: Logger_User, args: ..any, location := #caller_location) 
 	if logger_ctx.user != .All && user != logger_ctx.user && user != .All {
 		return
 	}
-	for a in args {
-		log.warn(user, location, "-", a)
-	}
+	log.warn(user, location)
+	log.warn(..args)
+	fmt.println("")
+	
 }
 
 @(disabled = RELEASE)
@@ -103,9 +107,10 @@ user_error :: proc(user: Logger_User, args: ..any, location := #caller_location)
 	if logger_ctx.user != .All && user != logger_ctx.user && user != .All {
 		return
 	}
-	for a in args {
-		log.error(user, location, "-", a)
-	}
+	log.error(user, location)
+	log.error(..args)
+	fmt.println("")
+	
 }
 
 @(disabled = RELEASE)
@@ -113,9 +118,10 @@ user_fatal :: proc(user: Logger_User, args: ..any, location := #caller_location)
 	if logger_ctx.user != .All && user != logger_ctx.user && user != .All {
 		return
 	}
-	for a in args {
-		log.fatal(user, location, "-", a)
-	}
+	log.fatal(user, location)
+	log.fatal(..args)
+	fmt.println("")
+	
 }
 
 @(disabled = RELEASE)
@@ -123,9 +129,10 @@ topic_debug :: proc(topic: Logger_Topic, args: ..any, location := #caller_locati
 	if logger_ctx.topic != .All && topic != logger_ctx.topic && topic != .All {
 		return
 	}
-	for a in args {
-		log.debug(topic, location, "-", a)
-	}
+	log.debug(topic, location)
+	log.debug(..args)
+	fmt.println("")
+	
 }
 
 @(disabled = RELEASE)
@@ -133,9 +140,10 @@ topic_info :: proc(topic: Logger_Topic, args: ..any, location := #caller_locatio
 	if logger_ctx.topic != .All && topic != logger_ctx.topic && topic != .All {
 		return
 	}
-	for a in args {
-		log.info(topic, location, "-", a)
-	}
+	log.info(topic, location)
+	log.info(..args)
+	fmt.println("")
+	
 }
 
 @(disabled = RELEASE)
@@ -143,9 +151,10 @@ topic_warn :: proc(topic: Logger_Topic, args: ..any, location := #caller_locatio
 	if logger_ctx.topic != .All && topic != logger_ctx.topic && topic != .All {
 		return
 	}
-	for a in args {
-		log.warn(topic, location, "-", a)
-	}
+	log.warn(topic, location)
+	log.warn(..args)
+	fmt.println("")
+	
 }
 
 @(disabled = RELEASE)
@@ -153,9 +162,9 @@ topic_error :: proc(topic: Logger_Topic, args: ..any, location := #caller_locati
 	if logger_ctx.topic != .All && topic != logger_ctx.topic && topic != .All {
 		return
 	}
-	for a in args {
-		log.error(topic, location, "-", a)
-	}
+	log.error(topic, location)
+	log.error( ..args)
+	fmt.println("")
 }
 
 @(disabled = RELEASE)
@@ -163,9 +172,10 @@ topic_fatal :: proc(topic: Logger_Topic, args: ..any, location := #caller_locati
 	if logger_ctx.topic != .All && topic != logger_ctx.topic && topic != .All {
 		return
 	}
-	for a in args {
-		log.fatal(topic, location, "-", a)
-	}
+	log.fatal(topic, location)
+	log.fatal(..args)
+	fmt.println("")
+	
 	assert(false)
 }
 

@@ -52,20 +52,27 @@ init_window :: proc(app_info: ^App_Info) -> GLFW_Context {
 		)
 	} else {
 		if app_info.monitor.(u32) > u32(len(monitors)) {
-			topic_error(.Core, fmt.aprint("Monitor %i is unavailable", app_info.monitor))
-			app_info.monitor = nil
+			topic_error(.Core, "Monitor",  app_info.monitor, "is unavailable")
+			glfw_ctx.window = glfw.CreateWindow(
+				app_info.width,
+				app_info.height,
+				app_info.title,
+				nil,
+				nil,
+			)
+		} else {
+			glfw_ctx.window = glfw.CreateWindow(
+				app_info.width,
+				app_info.height,
+				app_info.title,
+				monitors[app_info.monitor.(u32)],
+				nil,
+			)
 		}
-		glfw_ctx.window = glfw.CreateWindow(
-			app_info.width,
-			app_info.height,
-			app_info.title,
-			monitors[app_info.monitor.(u32)],
-			nil,
-		)
 	}
 	glfw.MakeContextCurrent(glfw_ctx.window)
 	// init_vulkan(glfw_ctx.window)
-	log.info("Initialised window")
+	topic_info(.Core, "Initialised window")
 	return glfw_ctx
 }
 

@@ -19,6 +19,7 @@ main :: proc() {
 		height  = 400,
 		title = "Example Window",
 		graphics_api = .Vulkan,
+		monitor = 6,
 	}
 	core.init_window(&app_info)
 
