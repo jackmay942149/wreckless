@@ -3,7 +3,7 @@ package main
 import "./core"
 
 main :: proc() {
-	context.logger = core.init_logger(.Jack, .All, "log.txt")
+	context.logger = core.init_logger(.Jack, .All)
 	tracking_allocator, allocator := core.init_tracker()
 	context.allocator = allocator
 	defer {

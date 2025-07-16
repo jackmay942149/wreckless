@@ -3,13 +3,14 @@ package core
 import "core:os"
 import gl "vendor:OpenGL"
 import glfw "vendor:glfw"
-			
+
 // odinfmt: disable
-vertices := []f32 {
-// position           color
-	-0.9, -0.9, 0.0,    1.0, 0.0, 0.0,
-	 0.9, -0.9, 0.0,    0.0, 1.0, 0.0,
-	 0.0,  0.9, 0.0,    0.0, 0.0, 1.0,
+mesh := Mesh {
+	vertices = {
+		{position = {-0.9, -0.9, 0.0}, color = {0.0, 0.0, 0.0, 1.0}},
+		{position = { 0.9, -0.9, 0.0}, color = {0.0, 1.0, 0.0, 1.0}},
+		{position = { 0.0,  0.9, 0.0}, color = {0.0, 0.0, 1.0, 1.0}},
+	},
 }
 // odinfmt: enable
 
@@ -17,7 +18,7 @@ OpenGL_Context :: struct {
 	shader_program: u32,
 }
 
-init_opengl :: proc(allocator := context.allocator) -> (api: Graphics_Api){
+init_opengl :: proc(allocator := context.allocator) -> (api: Graphics_Api) {
 	context.allocator = allocator
 	gl_ctx: OpenGL_Context
 
@@ -26,24 +27,30 @@ init_opengl :: proc(allocator := context.allocator) -> (api: Graphics_Api){
 
 	// Compile Shader
 	ok: bool
-	gl_ctx.shader_program, ok = gl.load_shaders_file("core/assets/default.vert", "core/assets/default.frag")
+	gl_ctx.shader_program, ok = gl.load_shaders_file(
+		"core/assets/default.vert",
+		"core/assets/default.frag",
+	)
 	if !ok {
 		topic_fatal(.Graphics, "Failed to create shaders")
 	}
-	
+
 	vbo, vao: u32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertices) * size_of(vertices[0]), raw_data(vertices), gl.STATIC_DRAW)
-	// Position
+	gl.BufferData(
+		gl.ARRAY_BUFFER,
+		len(mesh.vertices) * size_of(mesh.vertices[0]),
+		raw_data(mesh.vertices),
+		gl.STATIC_DRAW,
+	)
 	gl.EnableVertexAttribArray(0)
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 6 * size_of(f32), 0)
-	// Color
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, position))
 	gl.EnableVertexAttribArray(1)
-	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 6 * size_of(f32), 3 * size_of(f32))
-	
+	gl.VertexAttribPointer(1, 4, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, color))
+
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 
 	api = Graphics_Api {
