@@ -20,7 +20,7 @@ register_mesh :: proc(mesh: ^Mesh) {
 		gl.ARRAY_BUFFER,
 		len(mesh.vertices) * size_of(mesh.vertices[0]),
 		raw_data(mesh.vertices),
-		gl.STATIC_DRAW,
+		gl.DYNAMIC_DRAW,
 	)
 	gl.EnableVertexAttribArray(0)
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, position))
@@ -62,7 +62,11 @@ render_opengl :: proc(graphics_api: ^Graphics_Api_Context, scene: ^Scene) {
 	gl.ClearColor(0, 0, 0, 1)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 	gl.UseProgram(graphics_api.(OpenGL_Context).shader_program)
-	for entity in scene.entities {
+	for exists, i in scene.occupied_list {
+		if !exists {
+			continue
+		}
+		entity := &scene.entities[i]
 		gl.BindVertexArray(entity.mesh.opengl_vao)
 		u_pos := gl.GetUniformLocation(graphics_api.(OpenGL_Context).shader_program, "u_pos")
 		gl.Uniform2f(u_pos, entity.position.x, entity.position.y)

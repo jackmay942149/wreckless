@@ -28,6 +28,7 @@ main :: proc() {
 			{position = { 0.1, -0.1, 0.0}, color = {0.0, 0.0, 1.0, 1.0}},
 		},
 	}
+	core.register_mesh(&mesh)
 
 	triangle := core.Entity{
 		id = 0,
@@ -40,14 +41,13 @@ main :: proc() {
 		mesh = &mesh,
 	}
 
-	core.register_mesh(triangle.mesh)
-	
-	scene := core.Scene {
-		entities = {triangle, triangle_2},
-	}
+	scene: core.Scene
+	core.register_entity(&scene, &triangle)
+	tri_2 := core.register_entity(&scene, &triangle_2)
+	core.topic_info(.Temp, "Reached")
 
 	for !core.window_should_close(&glfw_ctx, &scene) {
-				
+		tri_2.position.x += 0.0001
 	}
 }
 
