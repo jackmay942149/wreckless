@@ -48,6 +48,7 @@ main :: proc() {
 
 	for !core.window_should_close(&glfw_ctx, &scene) {
 		tri_2.position.x += 0.0001
+		glfw_ctx.graphics_api.render(&glfw_ctx.graphics_api.ctx, &scene)
 	}
 }
 

@@ -7,7 +7,7 @@ Graphics_Api_Type :: enum u8 {
 
 Graphics_Api_Context :: union {
 	OpenGL_Context,
-	int, // temp
+	Vulkan_Context,
 }
 
 Graphics_Api :: struct {

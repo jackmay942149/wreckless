@@ -87,7 +87,6 @@ select_monitor :: proc(app_info: ^App_Info) -> (window: glfw.WindowHandle) {
 }
 
 window_should_close :: proc(glfw_ctx: ^GLFW_Context, scene: ^Scene) -> bool {
-	glfw_ctx.graphics_api.render(&glfw_ctx.graphics_api.ctx, scene)
 	glfw.SwapBuffers(glfw_ctx.window)
 	glfw.PollEvents()
 	return bool(glfw.WindowShouldClose(glfw_ctx.window))
