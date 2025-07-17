@@ -26,10 +26,11 @@ init_window :: proc(app_info: ^App_Info, allocator:= context.allocator) -> (glfw
 	context.allocator = allocator
 	assert(glfw_ctx.window == nil)
 	
-	
 	glfw.Init()
 	glfw.WindowHint(glfw.RESIZABLE, glfw.TRUE)
 	glfw.WindowHint(glfw.MAXIMIZED, glfw.FALSE)
+
+	// Window hints based on graphics api
 	switch app_info.graphics_api {
 	case .OpenGL:
 		glfw.WindowHint(glfw.CLIENT_API, glfw.OPENGL_API)
@@ -40,6 +41,7 @@ init_window :: proc(app_info: ^App_Info, allocator:= context.allocator) -> (glfw
 	glfw_ctx.window = select_monitor(app_info)
 	glfw.MakeContextCurrent(glfw_ctx.window)
 
+	// Initialise selected graphics api
 	switch app_info.graphics_api {
 	case .OpenGL:	glfw_ctx.graphics_api = init_opengl()
 	case .Vulkan:	return {}
@@ -84,8 +86,8 @@ select_monitor :: proc(app_info: ^App_Info) -> (window: glfw.WindowHandle) {
 	return window
 }
 
-window_should_close :: proc(glfw_ctx: ^GLFW_Context) -> bool {
-	glfw_ctx.graphics_api.render(&glfw_ctx.graphics_api.ctx)
+window_should_close :: proc(glfw_ctx: ^GLFW_Context, scene: ^Scene) -> bool {
+	glfw_ctx.graphics_api.render(&glfw_ctx.graphics_api.ctx, scene)
 	glfw.SwapBuffers(glfw_ctx.window)
 	glfw.PollEvents()
 	return bool(glfw.WindowShouldClose(glfw_ctx.window))

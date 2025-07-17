@@ -21,7 +21,32 @@ main :: proc() {
 	}
 	glfw_ctx := core.init_window(&app_info)
 
-	for !core.window_should_close(&glfw_ctx) {
+	mesh := core.Mesh {
+		vertices = {
+			{position = {-0.1, -0.1, 0.0}, color = {1.0, 0.0, 0.0, 1.0}},
+			{position = { 0.0,  0.1, 0.0}, color = {0.0, 1.0, 0.0, 1.0}},
+			{position = { 0.1, -0.1, 0.0}, color = {0.0, 0.0, 1.0, 1.0}},
+		},
+	}
+
+	triangle := core.Entity{
+		id = 0,
+		position = {0.1, 0},
+		mesh = &mesh,
+	}
+	triangle_2 := core.Entity{
+		id = 0,
+		position = {-0.1, 0},
+		mesh = &mesh,
+	}
+
+	core.register_mesh(triangle.mesh)
+	
+	scene := core.Scene {
+		entities = {triangle, triangle_2},
+	}
+
+	for !core.window_should_close(&glfw_ctx, &scene) {
 				
 	}
 }

@@ -1,7 +1,8 @@
 package core
 
 Mesh :: struct {
-	vertices: []Vertex,
+	opengl_vao: u32,
+	vertices:   []Vertex,
 }
 
 Vertex :: struct {
