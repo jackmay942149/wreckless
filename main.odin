@@ -17,7 +17,7 @@ main :: proc() {
 		width = 400,
 		height  = 400,
 		title = "Example Window",
-		graphics_api = .OpenGL,
+		graphics_api = .Vulkan,
 	}
 	glfw_ctx := core.init_window(&app_info)
 

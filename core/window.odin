@@ -15,11 +15,13 @@ GLFW_Context :: struct {
 }
 
 App_Info :: struct {
-	width:        i32,
-	height:       i32,
-	title:        cstring,
-	graphics_api: Graphics_Api_Type,
-	monitor:      Maybe(u32),
+	width:                i32,
+	height:               i32,
+	title:                cstring,
+	graphics_api:         Graphics_Api_Type,
+	monitor:              Maybe(u32),
+	vk_global_extensions: []cstring,
+	vk_global_layers:     []cstring,
 }
 
 init_window :: proc(app_info: ^App_Info, allocator:= context.allocator) -> (glfw_ctx: GLFW_Context) {
@@ -44,7 +46,7 @@ init_window :: proc(app_info: ^App_Info, allocator:= context.allocator) -> (glfw
 	// Initialise selected graphics api
 	switch app_info.graphics_api {
 	case .OpenGL:	glfw_ctx.graphics_api = init_opengl()
-	case .Vulkan:	return {}
+	case .Vulkan:	glfw_ctx.graphics_api = init_vulkan(app_info)
 	}
 
 	topic_info(.Core, "Initialised window")
